@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--通过这个配置文件，完成mybatis与数据库的连接  -->
+<configuration>
+    <settings>
+        <setting name="callSettersOnNulls" value="true"/> <!-- 返回空字段 -->
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+    <!-- 设置类的别名 -->
+    <typeAliases>
+        <!--分别给两个类别名-->
+        <typeAlias alias="User" type="com.msa.security.bean.UserInfo"/>
+        <typeAlias alias="Dept" type="com.msa.security.bean.DeptInfo"/>
+        <!-- 根据包取别名，把包下面的所有类都按类名来取别名 -->
+        <!-- 这用可以简化代码量 -->
+        <package name="com.msa.security.bean"/>
+    </typeAliases>
+    <!-- pojo的映射文件UserMapper引入到配入到配置文件中 -->
+    <mappers>
+        <mapper resource="mybatis/mapper/DeptInfoMapper.xml"/>
+        <mapper resource="mybatis/mapper/MenuInfoMapper.xml"/>
+        <mapper resource="mybatis/mapper/MenuRoleMapper.xml"/>
+        <mapper resource="mybatis/mapper/RoleMenuRelationMapper.xml"/>
+        <mapper resource="mybatis/mapper/UserInfoMapper.xml"/>
+        <mapper resource="mybatis/mapper/UserMenuRoleMapper.xml"/>
+        <mapper resource="mybatis/mapper/MTBexInterfaceMapper.xml"/>
+    </mappers>
+</configuration>

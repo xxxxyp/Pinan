@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.msa.security.dao.MenuRoleDao" >
+    <select id="selectRoleByManyRoleId" resultMap="MenuRoleMap" parameterType="java.util.List">
+        select
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DESCRIPTION,
+          ARRANGEMENT,
+          DATA_STATE
+        from menu_role
+        where
+          menu_role_id in
+            <foreach collection="list" item="role_id" open="(" separator="," close=")">
+                #{role_id}
+            </foreach>
+    </select>
+    <!--添加角色的sql语句-->
+    <insert id="addMenuRole" parameterType="MenuRole">
+        insert into menu_role(
+          menu_role_id,
+          subsystem_id,
+          description,
+          arrangement,
+          data_state,
+          fcu,
+          fcd,
+          lcu,
+          lcd
+          )
+        values(
+          #{menuRoleId,jdbcType=VARCHAR},
+          #{subsystemId,jdbcType=VARCHAR},
+          #{description,jdbcType=VARCHAR},
+          #{arrangement,jdbcType=VARCHAR},
+          #{dataState,jdbcType=VARCHAR},
+          #{fcu,jdbcType=VARCHAR},
+          #{fcd,jdbcType=DATE},
+          #{lcu,jdbcType=VARCHAR},
+          #{lcd,jdbcType=DATE}
+          )
+    </insert>
+    <!--根据角色编码来修改信息的Sql语句-->
+    <update id="updateMenuRole" parameterType="MenuRole">
+        update menu_role
+            <set>
+                 <if test="subsystemId!=null">
+                     SUBSYSTEM_ID=#{subsystemId,jdbcType=VARCHAR},
+                 </if>
+                <if test="description!=null">
+                    DESCRIPTION=#{description,jdbcType=VARCHAR},
+                </if>
+                <if test="arrangement!=null">
+                    ARRANGEMENT=#{arrangement,jdbcType=VARCHAR},
+                </if>
+                <if test="fcd">
+                    FCD=#{fcd,jdbcType=VARCHAR},
+                </if>
+                <if test="lcu!=null">
+                    LCU=#{lcu,jdbcType=VARCHAR},
+                </if>
+                <if test="lcd!=null">
+                    LCD=#{lcd,jdbcType=VARCHAR},
+                </if>
+            </set>
+        where
+          menu_role_id=#{menuRoleId,jdbcType=VARCHAR}
+    </update>
+    <!--根据id来删除角色信息-->
+    <delete id="delMenuRoleById" parameterType="String">
+        delete from
+          menu_role
+        where
+          menu_role_id=#{menuroleid,jdbcType=VARCHAR}
+    </delete>
+
+    <!--根据角色编码查询出是否有无-->
+    <select id="selectByMenuRoleId"  resultMap="MenuRoleMap" parameterType="String">
+        select
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DESCRIPTION,
+          ARRANGEMENT,
+          DATA_STATE
+        from
+          menu_role
+        where
+          menu_role_id=#{menuroleid,jdbcType=VARCHAR}
+    </select>
+    <!--查询出全部的角色与用户-->
+    <select id="selectAllRoleAndUser" resultType="java.util.HashMap">
+        select
+          m.MENU_ROLE_ID,
+          m.SUBSYSTEM_ID,
+          m.DESCRIPTION,
+          m.ARRANGEMENT,
+          m.DATA_STATE,
+          u.USER_ID,
+          u.DEPTNO,
+          u.USER_NAME,
+          u.MOBILE,
+          u.MAIL,
+          u.USER_TYPE
+        from
+          USER_MENU_ROLE  r
+        join user_info u
+          on r.user_id=u.user_id
+        join menu_role m
+          on r.MENU_ROLE_ID=m.MENU_ROLE_ID
+    </select>
+    <!--查询出一个角色下的所有用户-->
+    <select id="selectAllUserByRoleId" resultType="java.util.HashMap">
+        select
+          a.USER_ID userid,
+          a.USER_NAME username,
+          decode(b.userid,a.USER_ID,'1','0') ischoose
+        from
+          USER_INFO a
+        LEFT JOIN
+            (
+            select u.USER_ID as userid,u.USER_NAME as user_name
+            from  USER_MENU_ROLE  r  join  user_info  u  on r.user_id=u.user_id
+            join   menu_role  m  on  r.MENU_ROLE_ID=m.MENU_ROLE_ID
+            where  r.MENU_ROLE_ID=#{menuroleid,jdbcType=VARCHAR}
+            ) b
+        on a.USER_ID=b.userid
+    </select>
+    <!--查询一个用户下的角色信息-->
+    <select id="selectMenuRoleByUserId"  resultMap="MenuRoleMap" parameterType="String">
+        select
+          r.MENU_ROLE_ID,
+          r.SUBSYSTEM_ID,
+          r.DESCRIPTION,
+          r.ARRANGEMENT,
+          r.DATA_STATE,
+          r.FCU,
+          r.FCD,
+          r.LCU,
+          r.LCD
+        from
+          MENU_ROLE r,
+          USER_INFO u,
+          USER_MENU_ROLE ru
+        where
+          ru.USER_ID=u.USER_ID
+        and
+          ru.MENU_ROLE_ID=r.MENU_ROLE_ID
+        and
+          u.USER_ID=#{userId}
+    </select>
+
+    <select id="selectAllRoles" resultMap="MenuRoleMap" parameterType="MenuRole">
+        select
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DESCRIPTION,
+          ARRANGEMENT,
+          DATA_STATE
+        from
+          MENU_ROLE
+        where
+          1=1
+            <if test="menuRoleId!=null">
+                and MENU_ROLE_ID=#{menuRoleId}
+            </if>
+            <if test="description!=null">
+                and DESCRIPTION=#{description}
+            </if>
+    </select>
+
+    <select id="findAllMenuByRoleId" parameterType="String" resultType="java.util.Map">
+        select
+          r.MENU_ROLE_ID as menuRoleId,
+          m.MENU_ID menuId,
+          m.SUBSYSTEM_ID subsystemId,
+          m.DESCRIPTION as description,
+          m.MENU_URL as menuUrl,
+          m.FRAME_HEIGHT frameHeight,
+          m.MENU_TYPE menuType,
+          m.DATA_STATE dataState,
+          m.MENU_POSITION menuPosition
+        from
+          MENU_INFO m,
+          ROLE_MENU_RELATION mr,
+          MENU_ROLE r
+        where
+          m.MENU_ID=mr.MENU_ID
+        and
+          mr.MENU_ROLE_ID=r.MENU_ROLE_ID
+        and
+          r.MENU_ROLE_ID=#{roleId}
+    </select>
+
+    <resultMap id="MenuRoleMap" type="MenuRole" >
+        <result column="MENU_ROLE_ID" property="menuRoleId" jdbcType="VARCHAR" />
+        <result column="SUBSYSTEM_ID" property="subsystemId" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="ARRANGEMENT" property="arrangement" jdbcType="VARCHAR" />
+        <result column="DATA_STATE" property="dataState" jdbcType="VARCHAR" />
+        <result column="FCU" property="fcu" jdbcType="VARCHAR" />
+        <result column="FCD" property="fcd" jdbcType="DATE" />
+        <result column="LCU" property="lcu" jdbcType="VARCHAR" />
+        <result column="LCD" property="lcd" jdbcType="DATE" />
+    </resultMap>
+</mapper>

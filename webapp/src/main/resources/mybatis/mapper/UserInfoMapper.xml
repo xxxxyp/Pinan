@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.msa.security.dao.UserInfoDao" >
+    <select id="selectUserInfoByName" parameterType="String"
+            resultMap="UserInfoMap">
+        select
+          USER_ID,
+          USER_PWD,
+          DEPTNO,
+          USER_NAME,
+          MOBILE,
+          MAIL,
+          DATA_STATE,
+          ID_CODE,FAX,
+          TEL,
+          EXT,
+          VALID_FLAG,
+          USER_TYPE,
+          PAIC_LEAVE_DATE,
+          NAME_PINGYIN,
+          USER_POSITION
+        from
+          user_info
+        WHERE
+          user_name=#{userName}
+    </select>
+    <select id="selectUserInfoById" parameterType="String"
+            resultMap="UserInfoMap">
+        select
+          USER_ID,
+          USER_PWD,
+          DEPTNO,
+          USER_NAME,
+          MOBILE,
+          MAIL,
+          DATA_STATE,
+          ID_CODE,
+          FAX,
+          TEL,
+          EXT,
+          VALID_FLAG,
+          USER_TYPE,
+          PAIC_LEAVE_DATE,
+          NAME_PINGYIN,
+          USER_POSITION
+        from
+          user_info
+        WHERE
+          user_id=#{userId}
+    </select>
+    <!--添加用户信息的sql语句-->
+    <insert id="addUser" parameterType="UserInfo">
+        insert into user_info(
+          user_id,
+          user_pwd,
+          deptno,
+          user_name,
+          mobile,
+          mail,
+          data_state,
+          fcu,
+          fcd,
+          lcu,
+          lcd,
+          id_code,
+          fax,
+          tel,
+          ext,
+          valid_flag,
+          user_type,
+          paic_leave_date,
+          name_pingyin,
+          user_position
+          )
+        values
+          (
+            #{userId,jdbcType=VARCHAR},
+            #{userPwd,jdbcType=VARCHAR},
+            #{deptno,jdbcType=VARCHAR},
+            #{userName,jdbcType=VARCHAR},
+            #{mobile,jdbcType=VARCHAR},
+            #{mail,jdbcType=VARCHAR},
+            #{dataState,jdbcType=VARCHAR},
+            #{fcu,jdbcType=VARCHAR},
+            #{fcd,jdbcType=DATE},
+            #{lcu,jdbcType=VARCHAR},
+            #{lcd,jdbcType=DATE},
+            #{idCode,jdbcType=VARCHAR},
+            #{fax,jdbcType=VARCHAR},
+            #{tel,jdbcType=VARCHAR},
+            #{ext,jdbcType=VARCHAR},
+            #{validFlag,jdbcType=VARCHAR},
+            #{userType,jdbcType=VARCHAR},
+            #{paicLeaveDate,jdbcType=VARCHAR},
+            #{namePingyin,jdbcType=VARCHAR},
+            #{userPosition,jdbcType=VARCHAR}
+          )
+    </insert>
+    <!--根据用d来修改用户信息的sql语句-->
+    <update id="updateUser"  parameterType="UserInfo">
+        update
+          user_info
+            <set>
+                <if test="userName!=null">
+                    user_name=#{userName,jdbcType=VARCHAR},
+                </if>
+                <if test="mobile!=null">
+                    mobile=#{mobile,jdbcType=VARCHAR},
+                </if>
+                <if test="mail!=null">
+                    mail=#{mail,jdbcType=VARCHAR},
+                </if>
+                <if test="idCode!=null">
+                    id_code=#{idCode,jdbcType=VARCHAR},
+                </if>
+                <if test="fax!=null">
+                    fax=#{fax,jdbcType=VARCHAR},
+                </if>
+                <if test="tel!=null">
+                    tel=#{tel,jdbcType=VARCHAR},
+                </if>
+                <if test="ext!=null">
+                    ext=#{ext,jdbcType=VARCHAR},
+                </if>
+                <if test="validFlag!=null">
+                    valid_flag=#{validFlag,jdbcType=VARCHAR},
+                </if>
+                <if test="userType!=null">
+                    user_type=#{userType,jdbcType=VARCHAR},
+                </if>
+                <if test="paicLeaveDate!=null">
+                    paic_leave_date=#{paicLeaveDate,jdbcType=DATE},
+                </if>
+                <if test="namePingyin!=null">
+                    name_pingyin=#{namePingyin,jdbcType=VARCHAR},
+                </if>
+                <if test="userPosition!=null">
+                    user_position=#{userPosition,jdbcType=VARCHAR}
+                </if>
+            </set>
+        where
+          user_id=#{userId,jdbcType=VARCHAR}
+    </update>
+    <!--根据用户id来删除用户信息-->
+    <delete id="delUserById"  parameterType="String">
+        delete from
+          user_info
+        where
+          user_id=#{userId,jdbcType=VARCHAR}
+    </delete>
+
+    <!--判断部门编码是否存在用户与部门之间的内联查询-->
+    <select id="selectDeptAndUser"
+            resultType="java.util.HashMap" parameterType="String">
+        select
+          u.USER_ID,
+          u.USER_PWD,
+          u.DEPTNO,
+          USER_NAME,
+          u.MOBILE,
+          u.MAIL,
+          u.DATA_STATE,
+          u.ID_CODE,u.FAX,
+          u.TEL,
+          u.EXT,
+          u.VALID_FLAG,
+          u.USER_TYPE,
+          u.PAIC_LEAVE_DATE,
+          u.NAME_PINGYIN,
+          u.USER_POSITION,
+		  d.DEPTNO,
+		  d.DEPT_NAME,
+		  d.DEPT_ABBR_NAME,
+		  d.UP_DEPTNO,
+		  d.DATA_STATE,
+		  d.ARRANGEMENT,
+		  d.ENABLED_FLAG,
+		  d.TOP_DEPTNO,
+		  d.PS_UNI_DEPTID,
+		  d.PS_TOP_DEPTID
+        from
+          user_info u
+        join
+          dept_info d
+        on
+          u.deptno=d.deptno
+        where
+          d.deptno=#{deptno}
+    </select>
+    <!--用户与角色之间的内联查询-->
+    <select id="selectRoleAndUser" parameterType="String"
+            resultType="java.util.HashMap">
+        select
+          u.USER_ID,
+          u.DEPTNO,
+          u.USER_NAME,
+          u.MOBILE,
+          u.MAIL,
+          u.DATA_STATE,
+          u.ID_CODE,
+		  u.FAX,
+		  u.TEL,
+		  u.EXT,
+		  u.VALID_FLAG,
+		  u.USER_TYPE,
+		  u.PAIC_LEAVE_DATE,
+		  u.NAME_PINGYIN,
+		  u.USER_POSITION,
+		  r.MENU_ROLE_ID,
+		  r.SUBSYSTEM_ID,
+		  r.DESCRIPTION,
+		  r.ARRANGEMENT,
+		  r.DATA_STATE
+        from
+          user_menu_role  m
+        join
+          menu_role r
+        on
+          r.menu_role_id=m.menu_role_id
+        join
+          user_info u
+        on
+          u.user_id=m.user_id
+        where
+          u.user_id=#{userId}
+    </select>
+    <!--根据用户Id来查询出用户所对应的菜单模块-->
+    <select id="selectMenuAndUser" parameterType="String"
+            resultType="java.util.HashMap">
+        select
+          *
+        from
+          user_menu_role u
+        join
+          user_info i
+        on
+          u.USER_ID=i.USER_ID
+        join
+          menu_info m
+        on
+          u.SUBSYSTEM_ID=m.SUBSYSTEM_ID
+        where
+          i.user_id=#{userId}
+    </select>
+    <!--查询出所有的用户信息-->
+    <select id="selectInfo"  resultMap="UserInfoMap">
+        select
+          USER_ID,
+          DEPTNO,
+          USER_NAME,
+          MOBILE,
+          MAIL,
+          DATA_STATE,
+          FCU,
+          FCD,
+          LCU,
+          LCD,
+          ID_CODE,
+          FAX,
+          TEL,
+          EXT,
+          VALID_FLAG,
+          USER_TYPE,
+          PAIC_LEAVE_DATE,
+          NAME_PI
+          NGYIN,
+          USER_POSITION
+        from
+          user_info
+    </select>
+    <!--查询登陆用户信息的sql-->
+    <select id="selectLoginUser" resultMap="UserInfoMap"
+            parameterType="String">
+        select
+          USER_ID,
+          DEPTNO,
+          USER_NAME,
+          MOBILE,
+          MAIL,
+          DATA_STATE,
+          FCU,
+          FCD,
+          LCU,
+          LCD,
+          ID_CODE,
+          FAX,
+          TEL,
+          EXT,
+          VALID_FLAG,
+          USER_TYPE,
+          PAIC_LEAVE_DATE,
+          NAME_PI
+          NGYIN,
+          USER_POSITION
+        from
+          user_info
+        where
+          user_id=#{userId,jdbcType=VARCHAR}
+    </select>
+    <!--查询一个用户的信息-->
+    <select id="selectAll" parameterType="Map" resultMap="UserInfoMap">
+        select
+          USER_ID,
+          USER_PWD,
+          DEPTNO,
+          USER_NAME,
+          MOBILE,
+          MAIL,
+          DATA_STATE,
+          ID_CODE,
+          FAX,
+          TEL,
+          EXT,
+          VALID_FLAG,
+          USER_TYPE,
+          PAIC_LEAVE_DATE,
+          NAME_PINGYIN,
+          USER_POSITION
+        from
+          user_info
+        <where>
+            1=1
+            <if test="userId!=null">
+                 AND  USER_ID=#{userId,jdbcType=VARCHAR}
+            </if>
+            <if test="userName!=null">
+                AND USER_NAME=#{userName,jdbcType=VARCHAR}
+            </if>
+            <if test="deptno!=null">
+                AND DEPTNO=#{deptno,jdbcType=VARCHAR}
+            </if>
+            <if test="userType!=null">
+                AND USER_TYPE=#{userType,jdbcType=VARCHAR}
+            </if>
+            <if test="validFlag!=null">
+                AND VALID_FLAG=#{validFlag,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <resultMap id="UserInfoMap" type="UserInfo" >
+        <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+        <result column="USER_PWD" property="userPwd" jdbcType="VARCHAR" />
+        <result column="DEPTNO" property="deptno" jdbcType="VARCHAR"/>
+        <result column="USER_NAME" property="userName" jdbcType="VARCHAR"/>
+        <result column="MOBILE" property="mobile" jdbcType="VARCHAR"/>
+        <result column="MAIL" property="mail" jdbcType="VARCHAR"/>
+        <result column="DATA_STATE" property="dataState" jdbcType="VARCHAR"/>
+        <result column="FCU" property="fcu" jdbcType="VARCHAR"/>
+        <result column="FCD" property="fcd" jdbcType="DATE"/>
+        <result column="LCU" property="lcu" jdbcType="VARCHAR"/>
+        <result column="LCD" property="lcd" jdbcType="DATE"/>
+        <result column="ID_CODE" property="idCode" jdbcType="VARCHAR"/>
+        <result column="FAX" property="fax" jdbcType="VARCHAR"/>
+        <result column="TEL" property="tel" jdbcType="VARCHAR"/>
+        <result column="EXT" property="ext" jdbcType="VARCHAR"/>
+        <result column="VALID_FLAG" property="validFlag" jdbcType="VARCHAR" />
+        <result column="USER_TYPE" property="userType" jdbcType="VARCHAR" />
+        <result column="PAIC_LEAVE_DATE" property="paicLeaveDate" jdbcType="DATE" />
+        <result column="NAME_PINGYIN" property="namePingyin" jdbcType="VARCHAR" />
+        <result column="USER_POSITION" property="userPosition" jdbcType="VARCHAR" />
+    </resultMap>
+</mapper>

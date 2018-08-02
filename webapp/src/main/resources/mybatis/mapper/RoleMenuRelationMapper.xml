@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.msa.security.dao.RoleMenuRelationDao" >
+
+    <select id="selectRoleMenuRelationByManyRoleId" resultMap="RoleMenuRelationMap" parameterType="java.util.List">
+        select
+          MENU_ID,
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DATA_STATE
+        from
+          ROLE_MENU_RELATION
+        where
+          menu_role_id in
+            <foreach collection="list" item="role_id" open="(" separator="," close=")">
+                #{role_id}
+            </foreach>
+    </select>
+
+    <delete id="deleteAllRoleMenuRelation" parameterType="RoleMenuRelation">
+        DELETE FROM
+          ROLE_MENU_RELATION
+        <where>
+            1=1
+            <if test="menuRoleId!=null">
+                and MENU_ROLE_ID=#{menuRoleId}
+            </if>
+            <if test="menuId!=null">
+                and MENU_ID=#{menuId}
+            </if>
+        </where>
+
+    </delete>
+
+    <insert id="insertManyRoleMenuRelationForRoleId" parameterType="java.util.List">
+        insert into ROLE_MENU_RELATION (
+          MENU_ID,
+          MENU_ROLE_ID,
+          FCU,
+          FCD,
+          LCU,
+          LCD
+          )
+        SELECT
+          A.*
+        FROM(
+            <foreach collection="list" item="item" index="index" separator="UNION ALL">
+                SELECT
+                    #{item.menuId,jdbcType=VARCHAR} MENU_ID,
+                    #{item.menuRoleId,jdbcType=VARCHAR} MENU_ROLE_ID,
+                    #{item.fcu,jdbcType=VARCHAR} FCU,
+                    #{item.fcd,jdbcType=DATE} FCD,
+                    #{item.lcu,jdbcType=VARCHAR} LCU,
+                    #{item.lcd,jdbcType=DATE} LCD
+                FROM
+                    dual
+            </foreach>
+        )A
+    </insert>
+
+    <resultMap id="RoleMenuRelationMap" type="RoleMenuRelation" >
+        <result column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
+        <result column="MENU_ROLE_ID" property="menuRoleId" jdbcType="VARCHAR" />
+        <result column="SUBSYSTEM_ID" property="subsystemId" jdbcType="VARCHAR" />
+        <result column="DATA_STATE" property="dataState" jdbcType="VARCHAR" />
+        <result column="FCU" property="fcu" jdbcType="VARCHAR" />
+        <result column="FCD" property="fcd" jdbcType="DATE" />
+        <result column="LCU" property="lcu" jdbcType="VARCHAR" />
+        <result column="LCD" property="lcd" jdbcType="DATE" />
+    </resultMap>
+</mapper>

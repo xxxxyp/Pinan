@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.msa.security.dao.DeptInfoDao" >
+    <!--新增部门信息的sql语句-->
+    <insert id="addDeptInfo" parameterType="DeptInfo">
+        insert into dept_info(
+            deptno,
+            dept_name,
+            dept_abbr_name,
+            up_deptno,
+            data_state,
+            fcu,
+            fcd,
+            lcu,
+            lcd,
+            arrangement,
+            enabled_flag,
+            top_deptno,
+            ps_uni_deptid,
+            ps_top_deptid
+        ) values(
+           #{deptno,jdbcType=VARCHAR},
+           #{deptName,jdbcType=VARCHAR},
+           #{deptAbbrName,jdbcType=VARCHAR},
+           #{upDeptno,jdbcType=VARCHAR},
+           #{dataState,jdbcType=VARCHAR},
+           #{fcu,jdbcType=VARCHAR},
+           #{fcd,jdbcType=DATE},
+           #{lcu,jdbcType=VARCHAR},
+           #{lcd,jdbcType=DATE},
+           #{arrangement,jdbcType=VARCHAR},
+           #{enabledFlag,jdbcType=VARCHAR},
+           #{topDeptno,jdbcType=VARCHAR},
+           #{psUniDeptId,jdbcType=VARCHAR},
+           #{psTopDeptId,jdbcType=VARCHAR}
+           )
+    </insert>
+    <!--根据部门编号来修改信息的sql语句-->
+    <update  id="updateDeptInfo" parameterType="DeptInfo">
+        update dept_info
+        <set>
+            <if test="deptName!=null">
+                dept_name=#{deptName,jdbcType=VARCHAR},
+            </if>
+            <if test="deptAbbrName!=null">
+                dept_abbr_name=#{deptAbbrName,jdbcType=VARCHAR},
+            </if>
+            <if test="upDeptno!=null">
+                up_deptno=#{upDeptno,jdbcType=VARCHAR},
+            </if>
+            <if test="arrangement!=null">
+                arrangement=#{arrangement,jdbcType=VARCHAR},
+            </if>
+            <if test="enabledFlag!=null">
+                enabled_flag=#{enabledFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="topDeptno!=null">
+                top_deptno=#{topDeptno,jdbcType=VARCHAR},
+            </if>
+            <if test="psUniDeptId!=null">
+                ps_uni_deptid=#{psUniDeptId,jdbcType=VARCHAR},
+            </if>
+            <if  test="psTopDeptId!=null">
+                ps_top_deptid=#{psTopDeptId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where deptno=#{deptno,jdbcType=VARCHAR}
+    </update>
+    <!--根据部门编码来删除信息-->
+    <delete  id="delDeptInfo" parameterType="String">
+        delete from
+          dept_info
+        where
+          deptno=#{deptno,jdbcType=VARCHAR}
+    </delete>
+    <!--根据部门编码来返回部分用户与部门部分信息-->
+    <select id="selectDeptInfoAndUserInfoByDeptId"  parameterType="String"  resultType="java.util.HashMap">
+       select
+          b.deptno,
+          b.dept_name as "deptname",
+          b.dept_abbr_name,
+          b.up_deptno,
+          b.data_state,
+          b.enabled_flag,
+          u.user_id,
+          u.user_name,
+          u.data_state,
+          u.mail,
+          u.mobile,
+          u.valid_flag,
+          u.user_type,
+          u.user_position
+        from
+          dept_info  b
+        join
+          user_info u
+        on
+          u.deptno=b.deptno
+        where   1=1
+          <if test="deptno!=null and deptno!='undefined' and deptno!=''">
+              and u.deptno=#{deptno,jdbcType=VARCHAR}
+          </if>
+    </select>
+
+    <!--查询全部的部门信息-->
+    <select id="selectDeptInfo" parameterType="String" resultType="java.util.HashMap">
+        select
+          deptno,
+          DEPT_NAME,
+          DEPT_ABBR_NAME,
+          DATA_STATE,
+          fcu,
+          fcd,
+          lcu,
+          lcd,
+          ARRANGEMENT,
+          ENABLED_FLAG,
+          PS_UNI_DEPTID,
+          PS_TOP_DEPTID,
+          UP_DEPTNO,
+          TOP_DEPTNO
+        from
+          dept_info
+        where
+          1=1
+          <if test="deptno!=null">
+              and DEPTNO=#{deptno}
+          </if>
+    </select>
+    <resultMap id="DeptInfoMap" type="DeptInfo" >
+        <result column="DEPTNO" property="deptno" jdbcType="VARCHAR" />
+        <result column="DEPT_NAME" property="deptName" jdbcType="VARCHAR" />
+        <result column="DEPT_ABBR_NAME" property="deptAbbrName" jdbcType="VARCHAR" />
+        <result column="UP_DEPTNO" property="upDeptno" jdbcType="VARCHAR" />
+        <result column="DATA_STATE" property="dataState" jdbcType="VARCHAR" />
+        <result column="FCU" property="fcu" jdbcType="VARCHAR" />
+        <result column="FCD" property="fcd" jdbcType="DATE" />
+        <result column="LCU" property="lcu" jdbcType="VARCHAR" />
+        <result column="LCD" property="lcd" jdbcType="DATE" />
+        <result column="ARRANGEMENT" property="arrangement" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="TOP_DEPTNO" property="topDeptno" jdbcType="VARCHAR" />
+        <result column="PS_UNI_DEPTID" property="psUniDeptId" jdbcType="VARCHAR" />
+        <result column="PS_TOP_DEPTID" property="psTopDeptId" jdbcType="VARCHAR" />
+    </resultMap>
+    </mapper>

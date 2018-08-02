@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.msa.security.dao.MenuInfoDao" >
+    <select id="selectMenuInfoByOneMenuId" parameterType="MenuInfo" resultMap="MenuInfo">
+        select
+          MENU_ID,
+          DESCRIPTION,
+          MENU_POSITION,
+          MENU_URL,
+          FRAME_HEIGHT,
+          MENU_TYPE,
+          DATA_STATE
+        from MENU_INFO
+        where menu_id=#{menuId}
+    </select>
+    <select id="selectMenuInfoByManyMenuId" parameterType="java.util.List" resultMap="MenuInfo">
+        select
+            MENU_ID,
+            DESCRIPTION,
+            MENU_POSITION,
+            MENU_URL,
+            FRAME_HEIGHT,
+            MENU_TYPE,
+            DATA_STATE
+        from MENU_INFO
+        where menu_id in
+            <foreach collection="list" item="menu_id" open="(" separator="," close=")">
+                #{menu_id}
+            </foreach>
+    </select>
+    <!--查看全部信息Sql语句-->
+    <select  id="selectAllMenuInfo" resultMap="MenuInfo">
+        select
+          MENU_ID,
+          DESCRIPTION,
+          MENU_POSITION,
+          MENU_URL,
+          FRAME_HEIGHT,
+          MENU_TYPE,
+          DATA_STATE
+        from  Menu_Info
+    </select>
+
+    <select id="selectAllMenuAndShowRoleHad" parameterType="String" resultType="java.util.Map">
+        select
+          MENU_ID menuid,
+          DESCRIPTION description,
+          MENU_POSITION menuposition,
+          MENU_URL menuurl,
+          MENU_TYPE menutype,
+          decode(a.MENU_ID,b.menuid,'1','0') ischoose
+        from MENU_INFO a
+        LEFT JOIN
+            (
+            select  mr.MENU_ID menuid
+                    from ROLE_MENU_RELATION mr
+                    where
+                    mr.MENU_ROLE_ID=#{roleId}
+            ) b
+        on a.MENU_ID=b.menuid
+    </select>
+
+    <resultMap id="MenuInfo" type="MenuInfo">
+        <result column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
+        <result column="SUBSYSTEM_ID" property="subsystemId" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="MENU_POSITION" property="menuPosition" jdbcType="VARCHAR" />
+        <result column="MENU_URL" property="menuUrl" jdbcType="VARCHAR" />
+        <result column="FRAME_HEIGHT" property="frameHeight" jdbcType="VARCHAR" />
+        <result column="MENU_TYPE" property="menuType" jdbcType="VARCHAR" />
+        <result column="DATA_STATE" property="dataState" jdbcType="VARCHAR" />
+        <result column="FCU" property="fcu" jdbcType="VARCHAR" />
+        <result column="FCD" property="fcd" jdbcType="DATE" />
+        <result column="LCU" property="lcu" jdbcType="VARCHAR" />
+        <result column="LCD" property="lcd" jdbcType="DATE" />
+        <result column="FORM_SUBMIT_FLAG" property="formSubmitFlag" jdbcType="VARCHAR" />
+        <result column="TABLE_NAME" property="tableName" jdbcType="VARCHAR" />
+    </resultMap>
+    <!--根据菜单编码来修改菜单信息表Sql语句-->
+    <update  id="updateMenuInfo" parameterType="MenuInfo">
+        update
+          menu_info
+        set
+          subsystem_id=#{subsystemId,jdbcType=VARCHAR},
+          description=#{description,jdbcType=VARCHAR},
+          menu_position=#{menuPosition,jdbcType=VARCHAR},
+          menu_url=#{menuUrl,jdbcType=VARCHAR},
+          frame_height=#{frameHeight,jdbcType=VARCHAR},
+          menu_type=#{menuType,jdbcType=VARCHAR},
+          data_state=#{dataState,jdbcType=VARCHAR},
+          fcu=#{fcu,jdbcType=VARCHAR},
+          fcd=#{fcd,jdbcType=VARCHAR},
+          lcu=#{lcu},
+          lcd=#{lcd},
+          form_submit_flag=#{formSubmitFlag,jdbcType=VARCHAR},
+          table_name=#{tableName,jdbcType=VARCHAR}
+        where menu_id=#{menuId,jdbcType=VARCHAR}
+    </update>
+</mapper>

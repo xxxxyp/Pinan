@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.msa.security.dao.MTBexInterfaceDao" >
+
+    <resultMap id="MtBexInterfaceMap" type="MtBexInterface" >
+        <id column="ID" property="id" jdbcType="DECIMAL" />
+        <result column="BEX_CODE" property="bexCode" jdbcType="VARCHAR" />
+        <result column="BEX_NAME" property="bexName" jdbcType="VARCHAR" />
+        <result column="BEX_DESC" property="bexDesc" jdbcType="VARCHAR" />
+        <result column="BEX_TYPE" property="bexType" jdbcType="DECIMAL" />
+        <result column="DATASOURCE" property="datasource" jdbcType="VARCHAR" />
+        <result column="PAGE_MODE" property="pageMode" jdbcType="DECIMAL" />
+        <result column="ATTR1" property="attr1" jdbcType="VARCHAR" />
+        <result column="ATTR2" property="attr2" jdbcType="VARCHAR" />
+        <result column="ATTR3" property="attr3" jdbcType="VARCHAR" />
+        <result column="ATTR4" property="attr4" jdbcType="VARCHAR" />
+        <result column="ATTR5" property="attr5" jdbcType="VARCHAR" />
+        <result column="MODIFY_OPER" property="modifyOper" jdbcType="DECIMAL" />
+        <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+        <result column="BEX_CATE" property="bexCate" jdbcType="DECIMAL" />
+        <result column="TIMEOUT" property="timeout" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <select id="selectMTBexInterfaceByBexCode" resultMap="MtBexInterfaceMap" parameterType="String">
+        select
+          BEX_CODE,
+          BEX_NAME,
+          BEX_TYPE,
+          ATTR1,
+          ATTR2
+        from
+          MT_BEX_INTERFACE
+        where
+          bex_code=#{bexCode}
+    </select>
+
+</mapper>

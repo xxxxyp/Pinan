@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.msa.security.dao.UserMenuRoleDao" >
+    <select id="selectUserMenuRoleByUserId" parameterType="String" resultMap="userRole">
+    select
+      USER_ID,
+      MENU_ROLE_ID,
+      SUBSYSTEM_ID,
+      DATA_STATE
+    from
+      user_menu_role
+    where
+      user_id=#{user_id}
+    </select>
+    <!--根据用户编码来删除信息-->
+    <delete id="delUserMenuRole" parameterType="UserMenuRole">
+        delete from
+          user_menu_role
+        <where>
+            1=1
+            <if test="userId!=null">
+                and USER_ID=#{userId}
+            </if>
+            <if test="menuRoleId!=null">
+                and MENU_ROLE_ID=#{menuRoleId}
+            </if>
+        </where>
+    </delete>
+    <!--根据用户id来查询-->
+    <select id="selectByUserId"  parameterType="String" resultMap="userRole">
+        select
+          USER_ID,
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DATA_STATE
+        from
+          user_menu_role
+        where
+          user_id=#{userId,jdbcType=VARCHAR}
+    </select>
+    <!--根据用户id来修改信息的Sql-->
+    <update  id="updateUserMenuRole" parameterType="java.util.List" >
+        insert into user_menu_role (
+          USER_ID,
+          MENU_ROLE_ID,
+          SUBSYSTEM_ID,
+          DATA_STATE,
+          FCU,
+          FCD,
+          LCU,
+          LCD
+        )
+        SELECT
+          A.*
+        FROM
+            (
+            <foreach collection="list" item="item" index="index" separator="UNION ALL">
+                SELECT
+                #{item.userId,jdbcType=VARCHAR} USER_ID,
+                #{item.menuRoleId,jdbcType=VARCHAR} MENU_ROLE_ID,
+                #{item.subsystemId,jdbcType=VARCHAR} subsystemId,
+                #{item.dataState,jdbcType=VARCHAR} dataState,
+                #{item.fcu,jdbcType=VARCHAR} FCU,
+                #{item.fcd,jdbcType=DATE} FCD,
+                #{item.lcu,jdbcType=VARCHAR} LCU,
+                #{item.lcd,jdbcType=DATE} LCD
+                FROM dual
+            </foreach>
+            )A
+    </update>
+    <!--查询出所有的角色与用户信息-->
+    <select id="selectRoleAndUser"  resultType="java.util.List">
+        select
+          r.MENU_ROLE_ID,
+          r.DESCRIPTION,
+          u.USER_ID,
+          u.DEPTNO,
+          u.USER_NAME,
+          u.MOBILE,
+          u.MAIL,
+          u.VALID_FLAG,
+          u.DATA_STATE,
+          u.USER_POSITION,
+          u.USER_TYPE
+        from
+          user_menu_role  m
+        join
+          menu_role r
+        on
+          r.menu_role_id=m.menu_role_id
+        join
+          user_info u
+        on
+          u.user_id=m.user_id
+    </select>
+    <!--批量为用户添加角色-->
+    <insert id="addUserMenuRole" parameterType="java.util.List">
+     insert into  USER_MENU_ROLE(
+        USER_ID,
+        menu_role_id,
+        fcu,
+        fcd,
+        lcu,
+        lcd
+        )
+    <foreach close=")" collection="list" item="list" index="index" open="(" separator="union">
+        select
+        #{list.userId,jdbcType=VARCHAR},
+        #{list.menuRoleId,jdbcType=VARCHAR},
+        #{list.fcu,jdbcType=VARCHAR},
+        #{list.fcd,jdbcType=DATE},
+        #{list.lcu,jdbcType=VARCHAR},
+        #{list.lcd,jdbcType=VARCHAR}
+        from dual
+    </foreach>
+    </insert>
+
+    <resultMap id="userRole" type="UserMenuRole">
+        <result property="userId" column="USER_ID" jdbcType="VARCHAR"/>
+        <result property="menuRoleId" column="MENU_ROLE_ID" jdbcType="VARCHAR"/>
+        <result property="subsystemId" column="SUBSYSTEM_ID" jdbcType="VARCHAR"/>
+        <result property="dataState" column="DATA_STATE" jdbcType="VARCHAR"/>
+        <result property="fcu" column="fcu" jdbcType="VARCHAR"/>
+        <result property="fcd" column="fcd" jdbcType="DATE"/>
+        <result property="lcu" column="lcu" jdbcType="VARCHAR"/>
+        <result property="lcd" column="lcd" jdbcType="DATE"/>
+    </resultMap>
+</mapper>
